@@ -263,6 +263,6 @@ paket-files/
 __pycache__/
 *.pyc
 .idea/
-.DS_Store/
+.DS_Store
 .vscode/
 .ipynb_checkpoints

@@ -6,24 +6,30 @@
         <OutputType>Exe</OutputType>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
+        <RootNamespace>CryptoPriceAnalyzer</RootNamespace>
     </PropertyGroup>
 
     <ItemGroup>
         <FrameworkReference Include="Microsoft.AspNetCore.App"/>
+        <PackageReference Include="Dapper" Version="2.1.66" />
         <PackageReference Include="Microsoft.ApplicationInsights.WorkerService" Version="2.23.0"/>
         <PackageReference Include="Microsoft.Azure.Functions.Worker" Version="2.50.0"/>
         <PackageReference Include="Microsoft.Azure.Functions.Worker.ApplicationInsights" Version="2.50.0"/>
         <PackageReference Include="Microsoft.Azure.Functions.Worker.Extensions.Http.AspNetCore" Version="2.1.0"/>
         <PackageReference Include="Microsoft.Azure.Functions.Worker.Sdk" Version="2.0.6"/>
-    </ItemGroup>
-
-    <ItemGroup>
-      <Folder Include="Functions\" />
-      <Folder Include="Services\" />
+        <PackageReference Include="Microsoft.Data.Sqlite" Version="10.0.0" />
     </ItemGroup>
 
     <ItemGroup>
       <None Remove=".gitignore" />
+      <None Update="local.settings.default.json">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        <CopyToPublishDirectory>Never</CopyToPublishDirectory>
+      </None>
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\Domain\Domain.csproj" />
     </ItemGroup>
 
 </Project>

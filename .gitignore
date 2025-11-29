@@ -266,3 +266,4 @@ __pycache__/
 .DS_Store
 .vscode/
 .ipynb_checkpoints
+**/Domain/obj

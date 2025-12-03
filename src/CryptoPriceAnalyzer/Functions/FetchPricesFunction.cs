@@ -8,11 +8,11 @@ using Microsoft.Azure.Functions.Worker.Http;
 
 namespace CryptoPriceAnalyzer.Functions;
 
-public class FetchPricesFunction(PriceProviders providers)
+public class FetchPricesFunction(PriceProviders providers, Database database)
 {
     [Function("FetchPrices")]
     public async Task<HttpResponseData> Run(
-        [HttpTrigger(AuthorizationLevel.Anonymous, "GET")] HttpRequestData req)
+        [HttpTrigger(AuthorizationLevel.Anonymous, "get")] HttpRequestData req)
     {
         var query = HttpUtility.ParseQueryString(req.Url.Query);
 
@@ -26,7 +26,6 @@ public class FetchPricesFunction(PriceProviders providers)
 
         var providers1 = providers.AllProviders.Take(sourcesCount).ToList();
 
-        // --- external calls ---
         List<PriceResult> results;
 
         try
@@ -46,10 +45,9 @@ public class FetchPricesFunction(PriceProviders providers)
             return error;
         }
 
-        // --- save to DB ASC ---
-        foreach (var r in results)
+        foreach (var result in results)
         {
-            await using var con = Db.Open();
+            await using var con = database.Open();
             await con.ExecuteAsync(@"
                 INSERT INTO Prices (Id, Symbol, Source, Price, TimestampUtc)
                 VALUES (@Id, @Symbol, @Source, @Price, @TimestampUtc)",
@@ -57,16 +55,15 @@ public class FetchPricesFunction(PriceProviders providers)
                 {
                     Id = Guid.NewGuid().ToString(),
                     Symbol = symbol,
-                    Source = r.Source,
-                    Price = r.Price,
+                    Source = result.Source,
+                    Price = result.Price,
                     TimestampUtc = DateTime.UtcNow
                 });
         }
 
-        // --- read last N ---
         IEnumerable<dynamic> lastRows;
 
-        await using (var con = Db.Open())
+        await using (var con = database.Open())
         {
             lastRows = con.Query(@"
                 SELECT Id, Symbol, Source, Price, TimestampUtc
@@ -77,7 +74,6 @@ public class FetchPricesFunction(PriceProviders providers)
                 new { Symbol = symbol, Take = take });
         }
 
-        // --- output ---
         var response = req.CreateResponse(HttpStatusCode.OK);
 
         await response.WriteAsJsonAsync(new

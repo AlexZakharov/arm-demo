@@ -1,6 +1,7 @@
 using System.Net.Http.Json;
 using System.Text.Json;
 using CryptoPriceAnalyzer.Helpers;
+using CryptoPriceAnalyzer.Options;
 using Microsoft.Extensions.Options;
 
 namespace CryptoPriceAnalyzer.Services;

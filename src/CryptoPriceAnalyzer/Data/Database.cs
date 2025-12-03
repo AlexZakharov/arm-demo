@@ -1,15 +1,17 @@
+using CryptoPriceAnalyzer.Options;
 using Microsoft.Data.Sqlite;
 using Dapper;
+using Microsoft.Extensions.Options;
 
 namespace CryptoPriceAnalyzer.Data;
 
-public class Db
+public class Database(IOptions<DatabaseOptions> options)
 {
-    private const string Conn = "Data Source=crypto.db";
+    private readonly string _connectionString = options.Value.CryptoDb;
 
-    public static SqliteConnection Open() => new(Conn);
+    public SqliteConnection Open() => new(_connectionString);
 
-    public static void EnsureCreated()
+    public void EnsureCreated()
     {
         using var con = Open();
         con.Execute(@"

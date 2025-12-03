@@ -1,4 +1,5 @@
 using CryptoPriceAnalyzer.Data;
+using CryptoPriceAnalyzer.Options;
 using CryptoPriceAnalyzer.Services;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Builder;
@@ -14,23 +15,22 @@ builder.Services
     .AddApplicationInsightsTelemetryWorkerService()
     .ConfigureFunctionsApplicationInsights();
 
-// load config from local.settings.json + env
 builder.Configuration
     .AddJsonFile("local.settings.json", optional: true, reloadOnChange: true)
     .AddEnvironmentVariables();
 
-// bind provider options
+// register options
+builder.Services.Configure<DatabaseOptions>(builder.Configuration.GetSection("ConnectionStrings"));
 builder.Services.Configure<ProviderOptions>(builder.Configuration.GetSection("Providers"));
 
-// register our services
+// register services
+builder.Services.AddSingleton<Database>();
 builder.Services.AddSingleton<PriceProviders>();
-
-// register DB helper if needed (not DbContext)
-builder.Services.AddSingleton<Db>();
 
 var app = builder.Build();
 
 // ensure DB structure
-Db.EnsureCreated();
+var db = app.Services.GetRequiredService<Database>();
+db.EnsureCreated();
 
 app.Run();

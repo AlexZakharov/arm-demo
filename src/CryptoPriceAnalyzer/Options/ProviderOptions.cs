@@ -1,4 +1,4 @@
-namespace CryptoPriceAnalyzer.Services;
+namespace CryptoPriceAnalyzer.Options;
 
 public class ProviderOptions
 {
